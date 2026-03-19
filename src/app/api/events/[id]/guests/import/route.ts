@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { logActivity } from '@/lib/logger'
 import { parse } from 'csv-parse/sync'
-
-const prisma = new PrismaClient()
 
 export async function POST(
   request: Request,

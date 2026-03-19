@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import RSVPForm from "@/components/RSVPForm";
-
-const prisma = new PrismaClient();
+import Image from "next/image";
 
 // In Next 15, page params are a Promise.
 export default async function InviteLandingPage({ params }: { params: Promise<{ token: string }> }) {

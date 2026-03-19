@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { createSession } from '@/lib/auth'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
+import { logActivity } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -37,9 +36,11 @@ export async function POST(request: Request) {
     }
 
     await createSession(admin.id, admin.email)
+    await logActivity('LOGIN', 'SUCCESS', { email: admin.email })
 
     return NextResponse.json({ message: 'Login successful' }, { status: 200 })
-  } catch (error) {
+  } catch (error: any) {
+    await logActivity('LOGIN', 'ERROR', { message: error.message })
     console.error('Login error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },

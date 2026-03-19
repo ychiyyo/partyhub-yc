@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-
-const prisma = new PrismaClient()
+import { logActivity } from '@/lib/logger'
 
 export async function GET(
   request: Request,

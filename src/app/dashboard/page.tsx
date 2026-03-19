@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import DashboardClient from "./DashboardClient";
-
-const prisma = new PrismaClient();
 
 export default async function DashboardOverview() {
   const events = await prisma.event.findMany({

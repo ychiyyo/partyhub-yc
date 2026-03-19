@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -61,4 +60,14 @@ model Notification {
   eventId   String
   event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String   // e.g., "LOGIN", "CREATE_EVENT", "RSVP_SUBMIT"
+  details   String?  @default("") // JSON string or text summary
+  status    String   // "SUCCESS" | "ERROR"
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
 }

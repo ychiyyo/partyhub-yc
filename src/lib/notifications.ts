@@ -1,9 +1,10 @@
-import { PrismaClient, Guest } from "@prisma/client";
-import { sendEmail } from "./email";
-import { sendSMS } from "./sms";
+import { Guest } from '@prisma/client'
+import prisma from './prisma'
+import { logActivity } from './logger'
+import { sendEmail } from './email'
+import { sendSMS } from './sms'
 
-const prisma = new PrismaClient();
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 type NotificationType = "invite" | "reminder" | "thankyou";
 

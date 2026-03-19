@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-
-const prisma = new PrismaClient()
+import { logActivity } from '@/lib/logger'
 
 // Ensure unique slug
 async function generateUniqueSlug(title: string): Promise<string> {
@@ -29,6 +28,7 @@ export async function POST(request: Request) {
     const { title, description, date, time, location, backgroundImage, backgroundVideo } = data
 
     if (!title || !date || !time || !location) {
+      await logActivity('CREATE_EVENT', 'ERROR', { message: 'Missing required fields' })
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
     }
 
@@ -47,9 +47,34 @@ export async function POST(request: Request) {
       }
     })
 
+    await logActivity('CREATE_EVENT', 'SUCCESS', { eventId: event.id, title: event.title })
     return NextResponse.json(event, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
+    await logActivity('CREATE_EVENT', 'ERROR', { message: error.message })
     console.error('Create Event Error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function GET() {
+  try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const events = await prisma.event.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        guests: {
+          select: { rsvpStatus: true, plusOnes: true }
+        }
+      }
+    })
+
+    return NextResponse.json(events)
+  } catch (error) {
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
+  }
+}
+
