@@ -1,0 +1,64 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Event {
+  id              String         @id @default(uuid())
+  title           String
+  description     String?
+  date            DateTime
+  time            String
+  location        String
+  slug            String         @unique
+  backgroundImage String?
+  backgroundVideo String?
+  status          String         @default("active") // active | archived
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  guests          Guest[]
+  notifications   Notification[]
+}
+
+model Guest {
+  id                  String         @id @default(uuid())
+  name                String
+  email               String?
+  phone               String?
+  rsvpStatus          String         @default("pending") // pending | yes | no | maybe
+  plusOnes            Int            @default(0)
+  dietaryRestrictions String?
+  notes               String?
+  token               String         @unique @default(uuid())
+  eventId             String
+  event               Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  notifications       Notification[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  type      String    // invite | reminder | thankyou
+  channel   String    // email | sms
+  status    String    @default("queued") // queued | sent | failed
+  sentAt    DateTime?
+  error     String?
+  guestId   String
+  guest     Guest     @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+}
